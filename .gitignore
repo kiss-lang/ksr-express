@@ -1,5 +1,4 @@
-bin/
-externLog.txt
-*.memoized
-.temp/
-*.pyc
+node_modules/
+.haxelib/
+libs/
+index.js
