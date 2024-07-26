@@ -1,7 +1,7 @@
 -lib kiss
--lib express
 -lib kiss-express
 -lib kiss-spaced-rep
+-cp externs
 -cp src
 -D engine=ksr_express.Engine
 -D profileKiss

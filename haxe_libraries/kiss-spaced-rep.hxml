@@ -1,0 +1,6 @@
+# @install: lix --silent download "gh://github.com/kiss-lang/kiss-spaced-rep#353d8e1692596c525839226bae24c85ac47ed1a9" into kiss-spaced-rep/0.0.0/github/353d8e1692596c525839226bae24c85ac47ed1a9
+# @run: haxelib run-dir kiss-spaced-rep "${HAXE_LIBCACHE}/kiss-spaced-rep/0.0.0/github/353d8e1692596c525839226bae24c85ac47ed1a9"
+-lib datetime
+-lib kiss
+-cp ${HAXE_LIBCACHE}/kiss-spaced-rep/0.0.0/github/353d8e1692596c525839226bae24c85ac47ed1a9/src/
+-D kiss-spaced-rep=0.0.0
