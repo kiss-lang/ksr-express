@@ -6,5 +6,5 @@
 -D engine=ksr_express.Engine
 -D profileKiss
 --main kiss_spaced_rep.Main
---js index.js
---cmd node index.js
+--js bin/index.js
+--cmd node bin/index.js

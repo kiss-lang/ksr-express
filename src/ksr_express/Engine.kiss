@@ -1,35 +1,49 @@
 (import kiss_spaced_rep.StudyEngine)
 (implements StudyEngine)
 
+(loadFrom "kiss-express" "src/ServerUtil.kiss")
+
 (prop &mut :String content "")
+
+(savedVar :String activeUser "")
 
 (defNew []
     [&mut :String image ""
         &mut :Continuation cc null
         &mut :String->Void resolve null
         &mut :Dynamic connection null]
-    (let [app (Express.call)
-            port 3000
-            staticDir (#if STATIC_DIR (#value "STATIC_DIR") (Sys.getCwd))]
-        (print "Using $staticDir for static file directory")
-        (app.use "/static" (Express.static_.call staticDir))
-        (app.get "/" ->[req :Dynamic res next]
-            (res.send content))
-        (app.get "/continue" ->[req res next] {
-            (whenLet [_cc cc] (set cc null) (_cc))
-            (res.redirect "/")
-        })
-        (app.get "/submit" ->[:Dynamic req :Dynamic res next] {
-            (whenLet [_resolve resolve] (set resolve null) (_resolve req.query.value))
-            (res.redirect "/")
-        })
-        (app.get "/restart" ->[req :Dynamic res next] {
-            (res.redirect "/")
-            (connection.close)
-            (kiss_spaced_rep.Main_.main)
-        })
-        (#unless test
-            (set connection (app.listen port ->(print "kiss-express listening at http://localhost:$port"))))))
+    
+    (onLogout req
+        (when (= activeUser req.user?.username)
+            (set activeUser "")))
+
+    (kissExpress app [3000]
+        (let [staticDir (#if STATIC_DIR (#value "STATIC_DIR") (Sys.getCwd))]
+            (print "Using $staticDir for static file directory")
+            (app.use "/static" (Express.static_.call staticDir))
+            (app.get "/" ->[:Dynamic req :Dynamic res next] {
+                (unless activeUser
+                    (when req.user
+                        (set activeUser req.user.username)))
+                (let [output "$(kissExpressHeader req)$?(when (and activeUser (= req.user?.username activeUser)) content)"]
+                    (res.send output))
+            })
+            (app.get "/continue" ->[req res next] {
+                (when (and activeUser (= req.user?.username activeUser))
+                    (whenLet [_cc cc] (set cc null) (_cc)))
+                (res.redirect "/")
+            })
+            (app.get "/submit" ->[:Dynamic req :Dynamic res next] {
+                (when (and activeUser (= req.user?.username activeUser))
+                    (whenLet [_resolve resolve] (set resolve null) (_resolve req.query.value)))
+                (res.redirect "/")
+            })
+            (app.get "/restart" ->[req :Dynamic res next] {
+                (res.redirect "/")
+                (when (and activeUser (= req.user?.username activeUser))
+                    (connection.close)
+                    (kiss_spaced_rep.Main_.main))
+            }))))
 
 (method :Void clear []
     (set content ""))
